@@ -5,10 +5,11 @@ var FCMController = require('./FCM-NotificationController');
 
 module.exports.sendFCM = function (req, res) {
     let dateBeforeMonth = new Date();
-    dateBeforeMonth.setMonth(dateBeforeMonth.getMonth() - 1);
 
     switch (req.body.platform) {
         case "IOS": {
+            dateBeforeMonth.setDate(dateBeforeMonth.getDate() - 20);
+
             DeviceDetails.distinct("token", { os: "IOS", channels: { $regex: `.*${req.body.categoryId}*.` }, lastUpdateDate: { $gt: dateBeforeMonth } }).exec().then(dvs => {
                 console.log("****************FCM COUNT**", dvs.length)
                 if (dvs.length > 0) {
@@ -24,6 +25,8 @@ module.exports.sendFCM = function (req, res) {
             break;
         }
         case "ANDROID": {
+            dateBeforeMonth.setMonth(dateBeforeMonth.getMonth() - 1);
+
             AndroidDevices.find({
                 $or: [
                     { channels: { $regex: `.*${req.body.cid}*.` } },
@@ -156,7 +159,10 @@ module.exports.updateRegister = function (req, res) {
 }
 
 function registerIOSNew(deviceId, token, sound, channels) {
-    DeviceDetails.findOne({ device_id: deviceId }).exec().then(rs => {
+    DeviceDetails.findOne({
+        $or: [{ device_id: deviceId },
+        { token: token }]
+    }).exec().then(rs => {
         if (!rs) {
             let newIos = new DeviceDetails({
                 device_id: deviceId,
@@ -192,7 +198,10 @@ async function updateChannelsOrTokenOrSoundOrUserDetailsIOS(deviceId, token, cha
 }
 
 async function resetBadgeIOS(deviceId) {
-    let isFoundBefore = await DeviceDetails.findOne({ device_id: deviceId }).exec()
+    let isFoundBefore = await DeviceDetails.findOne({
+        $or: [{ device_id: deviceId },
+        { token: token }]
+    }).exec()
     if (isFoundBefore) {
         lastUpdateDate = new Date();
         isFoundBefore.badge = 1;

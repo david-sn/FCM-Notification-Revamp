@@ -66,7 +66,7 @@ function sendMultipleDeviceANDRIOD(deviceTokens, msgBody) {
     for (let index = 0; index < arrays.length; index++) {
         const element = arrays[index];
         FCM.sendToMultipleToken({ data: msgBody }, element, function (err, response) {
-            if (err) console.log("ANDRIOD ",err);
+            if (err) console.log("ANDRIOD ", err);
             else {
                 console.log("end Send callback FCM****ANDRIOD ", response.length, " Example response ", response[5].response);
             }
@@ -94,30 +94,28 @@ function sendMultipleDeviceIOS(deviceTokens, msgBody) {
 
     for (let index = 0; index < arrays.length; index++) {
         const element = arrays[index];
-        FCM.sendToMultipleToken(
-            {
-                notification: {
-                    title: msgBody.title,
-                    //body: msgBody.body,
-                    // message: msgBody.body
-                },
-                apns: {
-                    payload: {
-                        nid: msgBody.nid,
-                        version: "1",
-                        aps: {
-                            badge: 1,
-                            sound: "default"
-                        },
-                    }
+        FCM.sendToMultipleToken({
+            notification: {
+                title: msgBody.title,
+                //body: msgBody.body,
+                // message: msgBody.body
+            },
+            apns: {
+                payload: {
+                    nid: msgBody.nid,
+                    version: "1",
+                    aps: {
+                        badge: 1,
+                        sound: "default"
+                    },
                 }
             }
-            , element, function (err, response) {
-                if (err) console.log("IOS** ",err);
-                else {
-                    console.log("end Send callback FCM****IOS ", response.length, " Example response ", response[0]);
-                }
-            });
+        }, element, function (err, response) {
+            if (err) console.log("IOS** ", err);
+            else {
+                console.log("end Send callback FCM****IOS ", response.length, " Example response ", response[0]);
+            }
+        });
     }
 }
 
